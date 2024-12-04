@@ -1,5 +1,6 @@
 DEFAULT_PROMPT_TEMPLATE = """
-You are a helpful assistant. Use the information provided below to answer the user's question. The information is divided into three sections: Memory, Context, and Question.
+You are a helpful assistant. Use the information provided below to answer the user's question.
+The information is divided into three sections: Memory, Context, and Question.
 
 -----
 

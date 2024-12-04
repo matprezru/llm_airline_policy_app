@@ -1,7 +1,8 @@
 # src/__init__.py
-from dotenv import load_dotenv
-import os
 import logging
+import os
+
+from dotenv import load_dotenv
 
 logging.basicConfig(
     level=logging.DEBUG,

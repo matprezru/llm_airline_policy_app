@@ -21,6 +21,10 @@ uvicorn = "^0.32.1"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
+black = "^24.10.0"
+flake8 = "^7.1.1"
+isort = "^5.13.2"
+pre-commit = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core"]

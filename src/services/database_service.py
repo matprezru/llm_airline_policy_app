@@ -1,13 +1,13 @@
+import logging
 import os
 from typing import List, Union
-import logging
 
 from src.modules.rag.document_reader import DocumentReader
 from src.modules.rag.document_splitter import DocumentSplitter
 from src.modules.rag.vector_db import VectorDB
 
-
 logger = logging.getLogger(__name__)
+
 
 def load_documents(data_path: Union[List, str]) -> str:
     """Function to load a document, directory or list of documents into the vector database.
@@ -25,7 +25,7 @@ def load_documents(data_path: Union[List, str]) -> str:
         str: message indicating success or error.
     """
     try:
-        
+
         # 1. Read documents
         logger.info("Reading documents.")
         document_reader = DocumentReader(data_path)
@@ -34,9 +34,9 @@ def load_documents(data_path: Union[List, str]) -> str:
 
         # 2. Split documents into chunks
         logger.info("Splitting documents into chunks.")
-        document_splitter = DocumentSplitter(documents = documents)
+        document_splitter = DocumentSplitter(documents=documents)
         chunks = document_splitter.split_documents()
-        
+
         # 3. Index chunks in vector database
         logger.info("Indexing documents in vector database.")
         chroma_path = os.getenv("CHROMA_PATH")
@@ -44,6 +44,6 @@ def load_documents(data_path: Union[List, str]) -> str:
         message = vector_db.index_documents(documents=chunks)
 
         return message
-    
+
     except Exception as e:
         return f"Error. Exception occurred during upload process: '{e}'"

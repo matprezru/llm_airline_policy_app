@@ -6,7 +6,7 @@ function scrollToBottom() {
 
 // Event Listener on 'send' button click
 document.getElementById('send-button').addEventListener('click', async () => {
-    
+
     // Retrieve user's input text
     const userInput = document.getElementById('user-input').value;
     if (!userInput) return;
@@ -99,7 +99,7 @@ document.getElementById('send-button').addEventListener('click', async () => {
         divider.className = 'message-divider';
         chatBox.appendChild(divider);
 
-        scrollToBottom();        
+        scrollToBottom();
 
     } catch (error) {
 
