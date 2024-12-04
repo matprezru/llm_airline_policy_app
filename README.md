@@ -47,3 +47,7 @@ The airline policy documents are provided in PDF and markdown format. You will n
 ### LLM Model
 
 You can use any pre-trained LLM model of your choice. We recommend using OpenAI's GPT models, an API Key will be provided to you.
+
+### Potential Improvements
+
+To Do
