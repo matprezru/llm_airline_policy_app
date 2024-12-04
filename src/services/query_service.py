@@ -34,35 +34,15 @@ def query_rag(query_text: str, memory: List[Optional[Dict]] = []) -> dict:
         embedding_function=embeddings.get_embedding_function(),
     )
 
+    # Create metadata filter depending on the airline the query refers to
     filter_by_airline = os.getenv("FILTER_BY_AIRLINE", "False").lower() == "true"
     metadata_filter = None
     if filter_by_airline:
-
-        # Get list of available airlines in the db (different "parent_folder" field in metadata)
-        metadata_list = db.get(include=["metadatas"]).get("metadatas")
-        airlines_available = set(
-            [metadata.get("parent_folder", "") for metadata in metadata_list]
-        )
-
-        # Check if any specific airline is mentioned in the query (
-        # TODO: This is a Naive Approach. Improvements: use and LLM, NER or Fuzzy Matching
-        #       to recognize the airline(s) the query refers to.
-        airlines_mentioned = []
-        for airline in airlines_available:
-            if airline.replace(" ", "").lower() in query_text.replace(" ", "").lower():
-                airlines_mentioned.append(airline)
-
-        logger.debug(
-            f"The query refers to the following airlines: {airlines_mentioned}. Retrieved sources will be filtered."
-        )
-
-        # Set up filters for the mentioned airline(s)
-        if airlines_mentioned:
-            metadata_filter = {"parent_folder": {"$in": airlines_mentioned}}
+        metadata_filter = get_airline_filter(db=db, query=query_text)
 
     # Search relevant documents in the database
     results = db.similarity_search_with_score(
-        query_text, k=int(os.getenv("TOP_K", 3)), filter=metadata_filter
+        query_text, k=int(os.getenv("TOP_K", 5)), filter=metadata_filter
     )
 
     # Compose context from retrieved sources
@@ -102,3 +82,39 @@ def query_rag(query_text: str, memory: List[Optional[Dict]] = []) -> dict:
     response = {"answer": response_text, "sources": sources}
 
     return response
+
+
+def get_airline_filter(db: Chroma, query: str) -> Optional[Dict]:
+    """Analyzes the query and detects whether it refers to specific airline(s) or not.
+    If it does, it returns a metadata filter in dictionary format, so that only
+    chunks of documents belonging to the specific airline can be retrieved from the db.
+
+    Returns:
+        Optional[Dict]: the metadata filter in a format compatible with Chroma
+    """
+    
+    metadata_filter = None
+    
+    # Get list of available airlines in the db (different "parent_folder" field in metadata)
+    metadata_list = db.get(include=["metadatas"]).get("metadatas")
+    airlines_available = set(
+        [metadata.get("parent_folder", "") for metadata in metadata_list]
+    )
+
+    # Check if any specific airline is mentioned in the query (
+    # TODO: This is a Naive Approach. Improvements: use and LLM, NER or Fuzzy Matching
+    #       to recognize the airline(s) the query refers to.
+    airlines_mentioned = []
+    for airline in airlines_available:
+        if airline.replace(" ", "").lower() in query.replace(" ", "").lower():
+            airlines_mentioned.append(airline)
+
+    logger.debug(
+        f"The query refers to the following airlines: {airlines_mentioned}. Retrieved sources will be filtered."
+    )
+
+    # Set up filters for the mentioned airline(s)
+    if airlines_mentioned:
+        metadata_filter = {"parent_folder": {"$in": airlines_mentioned}}
+        
+    return metadata_filter
